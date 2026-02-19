@@ -21,8 +21,22 @@ interface SettingsProps {
 type SettingsView = 'main' | 'personal' | 'security' | 'notifications' | 'theme' | 'data';
 
 const Settings: React.FC<SettingsProps> = ({ darkMode, setDarkMode, profile, setProfile }) => {
-  const { user } = useAuth();
+  const { user, retryLoadProfile } = useAuth();
   const [currentView, setCurrentView] = useState<SettingsView>('main');
+  const [retrying, setRetrying] = useState(false);
+
+  /**
+   * 手动重试加载用户资料
+   * NOTE: 网络不好时用户可以点击重试按钮
+   */
+  const handleRetry = async () => {
+    setRetrying(true);
+    try {
+      await retryLoadProfile();
+    } finally {
+      setRetrying(false);
+    }
+  };
 
   // 编辑用的临时 state（取消时恢复原值）
   const [tempNickname, setTempNickname] = useState(profile?.nickname ?? '');
@@ -315,6 +329,16 @@ const Settings: React.FC<SettingsProps> = ({ darkMode, setDarkMode, profile, set
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               {profile?.nickname ?? '加载中...'}
             </h2>
+            {/* NOTE: profile 为空时显示重试按钮 */}
+            {!profile && (
+              <button
+                onClick={handleRetry}
+                disabled={retrying}
+                className="mt-2 px-4 py-1.5 bg-primary/20 text-primary text-xs font-bold rounded-full active:scale-95 transition-all disabled:opacity-50"
+              >
+                {retrying ? '正在重试...' : '⟳ 点击重试加载'}
+              </button>
+            )}
             <p className="text-slate-500 dark:text-primary/70 text-[10px] font-bold mt-1 uppercase tracking-[0.3em]">
               等级 {level} • {rank}
             </p>
