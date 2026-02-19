@@ -1,0 +1,7 @@
+{
+  "name": "HabitMaster - 习惯大师",
+  "description": "一个精美的习惯追踪应用，具有每日目标、活动统计、任务创建和个性化设置功能。",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
